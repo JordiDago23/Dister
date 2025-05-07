@@ -13,14 +13,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class NewPostScreen extends StatefulWidget {
-  const NewPostScreen({super.key});
+class NewPostTabletScreen extends StatefulWidget {
+  const NewPostTabletScreen({super.key});
 
   @override
-  State<NewPostScreen> createState() => _NewPostScreenState();
+  State<NewPostTabletScreen> createState() => _NewPostTabletScreenState();
 }
 
-class _NewPostScreenState extends State<NewPostScreen> {
+class _NewPostTabletScreenState extends State<NewPostTabletScreen> {
   final _linkcontroller = TextEditingController();
   final _titlecontroller = TextEditingController();
   final _shopcontroller = TextEditingController();
@@ -36,11 +36,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
   final List<String> _selectedHighlights = [];
   final List<XFile?> _selectedImages = [null, null, null];
   final GlobalKey<FormState> _formkey2 = GlobalKey<FormState>();
-
   final TextEditingController _dateController = TextEditingController();
-
   final FirebaseServices fs = FirebaseServices();
-
   bool _isUploading = false;
 
   Future<void> _pickImage(int index) async {
@@ -76,46 +73,57 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
-          child: Text(
-            S.of(context).upload,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.secondary,
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            border: Border(
+              bottom: BorderSide(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                width: 1,
+              ),
             ),
           ),
+          child: Row(
+            children: [
+              Text(
+                S.of(context).newPost,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: ValueListenableBuilder<bool>(
-          valueListenable: _isFormValidNotifier,
-          builder: (context, isFormValid, child) {
-            return PageView(
-              controller: _pageController,
-              physics: isFormValid
-                  ? const BouncingScrollPhysics()
-                  : const NeverScrollableScrollPhysics(),
-              children: [
-                firstPage(context),
-                secondPage(context),
-                thirdPage(context),
-              ],
-            );
-          },
+        Expanded(
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _isFormValidNotifier,
+            builder: (context, isFormValid, child) {
+              return PageView(
+                controller: _pageController,
+                physics: isFormValid
+                    ? const BouncingScrollPhysics()
+                    : const NeverScrollableScrollPhysics(),
+                children: [
+                  firstPage(context),
+                  secondPage(context),
+                  thirdPage(context),
+                ],
+              );
+            },
+          ),
         ),
-      ),
+      ],
     );
   }
 
   Widget firstPage(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 26.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -134,7 +142,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
               style: const TextStyle(fontSize: 16),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 15.0),
+              padding: const EdgeInsets.only(top: 15),
               child: SingleChildScrollView(
                 child: Form(
                   key: _formKey,
@@ -273,7 +281,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   Widget secondPage(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 26.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -295,32 +303,35 @@ class _NewPostScreenState extends State<NewPostScreen> {
             ),
             const SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(3, (index) {
-                return GestureDetector(
-                  onTap: () => _pickImage(index),
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.grey[200],
-                      image: _selectedImages[index] != null
-                          ? DecorationImage(
-                              image:
-                                  FileImage(File(_selectedImages[index]!.path)),
-                              fit: BoxFit.cover,
-                            )
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                for (int i = 0; i < 3; i++) ...[
+                  GestureDetector(
+                    onTap: () => _pickImage(i),
+                    child: Container(
+                      width: 200,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.grey[200],
+                        image: _selectedImages[i] != null
+                            ? DecorationImage(
+                                image:
+                                    FileImage(File(_selectedImages[i]!.path)),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      child: _selectedImages[i] == null
+                          ? const Icon(Icons.add_a_photo,
+                              size: 40, color: Colors.grey)
                           : null,
                     ),
-                    child: _selectedImages[index] == null
-                        ? const Icon(Icons.add_a_photo,
-                            size: 40, color: Colors.grey)
-                        : null,
                   ),
-                );
-              }),
+                  if (i < 2) const SizedBox(width: 16),
+                ]
+              ],
             ),
             const SizedBox(height: 20),
             Form(
@@ -373,9 +384,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         });
                       },
                     ),
-                    const SizedBox(
-                      height: 20,
-                    )
+                    const SizedBox(height: 20),
                   ],
                   CustomTextField(
                     controller: _dateController,
@@ -385,9 +394,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     isDateField: true,
                     helptext: S.of(context).datehintText,
                   ),
-                  const SizedBox(
-                    height: 20, // Cambié el tamaño a 20 aquí
-                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -497,26 +504,25 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                 )
                                     .then((success) async {
                                   setState(() {
-                                    _isUploading = false; // Reset the flag
+                                    _isUploading = false;
                                   });
                                   if (success) {
-                                    // Increment the user's listings count
                                     await fs.incrementUserListings(user.uid);
-
                                     _pageController.nextPage(
                                       duration:
                                           const Duration(milliseconds: 300),
                                       curve: Curves.easeIn,
                                     );
                                   } else {
-                                    // ignore: use_build_context_synchronously
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content:
-                                            // ignore: use_build_context_synchronously
-                                            Text(S.of(context).erroruploading),
-                                      ),
-                                    );
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              S.of(context).erroruploading),
+                                        ),
+                                      );
+                                    }
                                   }
                                 });
                               } else {
